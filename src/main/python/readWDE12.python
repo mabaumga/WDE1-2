@@ -1,0 +1,90 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+ 
+import re, os, time
+import paho.mqtt.client as mqtt
+import pymysql
+import datetime
+import serial.tools.list_ports
+ 
+# Präfix für die Topics
+defaultTopic = "home/sensor/wde12/"
+# Hier die Broker URL eintragen
+brokerUrl = "brokerURL"
+ 
+# Beispielaufbau der Datenzeile vom WDE12:
+# example = "$1;1;;;;;11,3;19,9;;;;;;;99;54;;;;10,6;60;1,3;168;0;0"
+ 
+def findPort():
+    value = None
+    ports = list(serial.tools.list_ports.comports())
+    for p in ports:
+        if "USB-WDE1" in p.description:
+            value = p
+    return value.device
+     
+     
+def sendValue(sensorID, type, value):
+    if value != "":    
+        topic = defaultTopic+str(sensorID)+"/"+type
+        value = value.replace(",",".")
+        print " "+topic+": "+value
+        client.publish(topic, value)
+     
+def sendData(line):
+    values = line.split(";")
+    print values
+    ts = time.strftime('%Y-%m-%d %H:%M:%S')
+    print "Timestamp : "+ts
+    client.publish(defaultTopic+"timestamp", ts)
+     
+    # Jetzt die einzelnen Werte
+     
+    # Temperatur
+    sendValue(1,"temperature",values[3])
+    sendValue(2,"temperature",values[4])
+    sendValue(3,"temperature",values[5])
+    sendValue(4,"temperature",values[6])
+    sendValue(5,"temperature",values[7])
+    sendValue(6,"temperature",values[8])
+    sendValue(7,"temperature",values[9])
+    sendValue(8,"temperature",values[10])
+    # Humiditity
+    sendValue(1,"humiditity",values[11])       
+    sendValue(2,"humiditity",values[12])
+    sendValue(3,"humiditity",values[13])
+    sendValue(4,"humiditity",values[14])
+    sendValue(5,"humiditity",values[15])
+    sendValue(6,"humiditity",values[16])
+    sendValue(7,"humiditity",values[17])
+    sendValue(8,"humiditity",values[18])   
+    # Weathersensor
+    sendValue(9,"temperature",values[19])
+    sendValue(9,"humiditity",values[20])
+    sendValue(9,"wind",values[21])
+    sendValue(9,"raining",values[22])
+    sendValue(9,"rainfall",values[23])
+             
+     
+port = findPort()
+ 
+client = mqtt.Client() 
+# Baue Verbindung zum MQTT Broker auf
+client.connect(brokerUrl, 1883, 60)
+client.loop_start()
+ 
+ 
+if port == None:
+    print "Could not find USB WDE1 Receiver!"
+else:
+    print "Use Port "+port
+    print "Send Data to URL "+brokerUrl
+     
+    ser = serial.Serial(port)
+         
+    while True:    
+        # read line from WDE1
+        line = ser.readline()
+        line = line.strip()        
+        sendData(line)     
+        #time.sleep(30)
