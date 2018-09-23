@@ -43,6 +43,16 @@ Folgenden Inhalt in die neue Datei einfügen:
 ```
 #! /bin/sh
 # /etc/init.d/wde12
+
+### BEGIN INIT INFO
+# Provides:          /etc/init.d/wde12
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
  
 case "$1" in
 start)
