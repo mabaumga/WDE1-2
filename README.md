@@ -25,7 +25,7 @@ pip install PyMySQL
 pip install PySerial
 ```
 
-Das Skript unter src/main/python/readWDE12.python auf den Server (z.B. unter /home/openhabian/wde12/readWDE.py) kopieren. Bitte die brokerURL entsprechend dem eigenen Mosquitto Broker anpassen. Anschließend die Datei ausführbar machen:
+Das Skript unter src/main/python/readWDE12.py auf den Server (z.B. unter /home/openhabian/wde12/readWDE.py) kopieren. Bitte die brokerURL entsprechend dem eigenen Mosquitto Broker anpassen. Anschließend die Datei ausführbar machen:
 
 ```
 sudo chmod 755 /home/openhabian/wde12/readWDE.py
@@ -63,7 +63,7 @@ python /home/openhabian/wde12/readWDE.py &
 stop)
 echo "Stopping WDE12"
 # kill application you want to stop
-killall python
+sudo ps aux | grep "python /home/openhabian/wde12/readWDE.py" | grep -v grep | awk '{print $2}' | xargs sudo kill -9
 ;;
 *)
 echo "Usage: /etc/init.d/wde12 {start|stop}"
